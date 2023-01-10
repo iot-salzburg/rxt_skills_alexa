@@ -1,0 +1,164 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "robot framework",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                },
+                {
+                    "name": "GrabObjectIntent",
+                    "slots": [
+                        {
+                            "name": "slot_inventory",
+                            "type": "SLOTINVENTORY"
+                        }
+                    ],
+                    "samples": [
+                        "get object {slot_inventory}",
+                        "get {slot_inventory}",
+                        "pick {slot_inventory}",
+                        "grab {slot_inventory}",
+                        "pick object {slot_inventory}",
+                        "grab object {slot_inventory}",
+                        "grab object from {slot_inventory}",
+                        "get bottle from {slot_inventory}",
+                        "get glass from {slot_inventory}",
+                        "pick bottle from {slot_inventory}",
+                        "pick glass from {slot_inventory}",
+                        "pick object from {slot_inventory}",
+                        "get object from {slot_inventory}"
+                    ]
+                },
+                {
+                    "name": "PutObjectIntent",
+                    "slots": [
+                        {
+                            "name": "slot_holder",
+                            "type": "SLOTHOLDER"
+                        }
+                    ],
+                    "samples": [
+                        "put object {slot_holder}",
+                        "put {slot_holder}",
+                        "place {slot_holder}",
+                        "release {slot_holder}",
+                        "place object {slot_holder}",
+                        "release object {slot_holder}",
+                        "release object in {slot_holder}",
+                        "put bottle in {slot_holder}",
+                        "put glass in {slot_holder}",
+                        "place bottle in {slot_holder}",
+                        "place glass in {slot_holder}",
+                        "place object in {slot_holder}",
+                        "put object in {slot_holder}"
+                    ]
+                },
+                {
+                    "name": "AMAZON.PauseIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ResumeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "StringIntent",
+                    "slots": [],
+                    "samples": [
+                        "hello "
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "SLOTINVENTORY",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "9"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "8"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "7"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "6"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "5"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "4"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "3"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "2"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "1"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "SLOTHOLDER",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "3"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "2"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "1"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
