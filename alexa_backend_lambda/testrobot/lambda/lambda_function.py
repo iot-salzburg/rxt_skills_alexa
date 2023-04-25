@@ -6,17 +6,31 @@
 # This sample is built using the handler classes approach in skill builder.
 import logging
 import ask_sdk_core.utils as ask_utils
-
-from ask_sdk_core.skill_builder import SkillBuilder
+from ask_sdk_core.utils import is_intent_name, get_supported_interfaces
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
-from ask_sdk_core.dispatch_components import AbstractExceptionHandler
+import paho.mqtt.client as paho
+import time
+from ask_sdk_core.skill_builder import SkillBuilder
+from ask_sdk_core.dispatch_components import AbstractRequestHandler, AbstractExceptionHandler
 from ask_sdk_core.handler_input import HandlerInput
+from ask_sdk_model.interfaces.alexa.presentation.apl import RenderDocumentDirective
+
 
 from ask_sdk_model import Response
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
+#--------------------------------------- IOT---------------------------
+def on_publish(client, userdata, mid):
+    print("mid: "+str(mid))
+
+client = paho.Client()
+client.on_publish = on_publish
+client.connect('80.158.53.59', 1883)
+client.loop_start()
+#---------------------------------------------------------------------
 
 class LaunchRequestHandler(AbstractRequestHandler):
     """Handler for Skill Launch."""
@@ -27,7 +41,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speak_output = "Welcome, you can say Hello or Help. Which would you like to try?"
+        speak_output = "Welcome. I am your personal assistant. Time to take off."
 
         return (
             handler_input.response_builder
@@ -36,47 +50,48 @@ class LaunchRequestHandler(AbstractRequestHandler):
                 .response
         )
 
-class FoodInfoIntentHandler(AbstractRequestHandler):
-    def can_handle(self,handler_input):
-        return ask_utils.is_intent_name("FoodInfoIntent")(handler_input)
 
-    def handle(self,handler_input):
-        speak_output = "Hello, we offer bananas, apples, nuts, pizza and popcorn"
-
-        return (
-            handler_input.response_builder.speak(speak_output).response
-        )
-        
-class FoodRequestIntentHandler(AbstractRequestHandler):
+class GrabObjectIntentHandler(AbstractRequestHandler):
     def can_handle(self,handler_input):
-        return ask_utils.is_intent_name("FoodRequestIntent")(handler_input)
-        
+        return ask_utils.is_intent_name("GrabObjectIntent")(handler_input)
+    
     def handle(self,handler_input):
-        slots = handler_input.request_envelope.request.slots
-        foodtype = slots["foodtype"].value
-        speak_output =  "Hello, we offer bananas, apples, nuts, pizza and popcorn"
+        slots = handler_input.request_envelope.request.intent.slots
+        slot_num = slots["slot_inventory"].value
+        slot_num1 = int(slot_num)
+        if slot_num1 <= 9:
+            time.sleep(1)
+            (rc, mid) = client.publish('robxtask', "pick_"+str(slot_num1), qos=0)
+            time.sleep(1)
+            speak_output = "Robot will grab the object from slot " + str(slot_num1)
+            
+        else:
+            speak_output = "Requested slot is not available please choose the slot between 1 to 9"
         return (
-            handler_input.response_builder.speak(speak_output).response            
+            handler_input.response_builder.speak(speak_output).ask(speak_output).response
+            )
+            
+    
+class PutObjectIntentHandler(AbstractRequestHandler):
+    def can_handle(self,handler_input):
+        return ask_utils.is_intent_name("PutObjectIntent")(handler_input)
+    
+    def handle(self,handler_input):
+        slots = handler_input.request_envelope.request.intent.slots
+        slot_num = slots["slot_holder"].value
+        slot_num1 = int(slot_num)
+        if slot_num1 <= 3:
+            time.sleep(1)
+            (rc, mid) = client.publish('robxtask', "place_"+str(slot_num1), qos=0)
+            time.sleep(1)
+            speak_output = "Robot will place the object in slot " + str(slot_num1)
+        else:
+            speak_output = "Requested slot is not available please choose the slot between 1 to 3"
+        return (
+            handler_input.response_builder.speak(speak_output).ask(speak_output).response
             )
 
 
-
-class HelloWorldIntentHandler(AbstractRequestHandler):
-    """Handler for Hello World Intent."""
-    def can_handle(self, handler_input):
-        # type: (HandlerInput) -> bool
-        return ask_utils.is_intent_name("HelloWorldIntent")(handler_input)
-
-    def handle(self, handler_input):
-        # type: (HandlerInput) -> Response
-        speak_output = "Hello World!"
-
-        return (
-            handler_input.response_builder
-                .speak(speak_output)
-                # .ask("add a reprompt if you want to keep the session open for the user to respond")
-                .response
-        )
 
 
 class HelpIntentHandler(AbstractRequestHandler):
@@ -105,8 +120,10 @@ class CancelOrStopIntentHandler(AbstractRequestHandler):
                 ask_utils.is_intent_name("AMAZON.StopIntent")(handler_input))
 
     def handle(self, handler_input):
+        global client
         # type: (HandlerInput) -> Response
         speak_output = "Goodbye!"
+        client.loop_stop()
 
         return (
             handler_input.response_builder
@@ -138,6 +155,8 @@ class SessionEndedRequestHandler(AbstractRequestHandler):
         # type: (HandlerInput) -> Response
 
         # Any cleanup logic goes here.
+        global client
+        client.loop_stop()
 
         return handler_input.response_builder.response
 
@@ -195,8 +214,8 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 sb = SkillBuilder()
 
 sb.add_request_handler(LaunchRequestHandler())
-sb.add_request_handler(HelloWorldIntentHandler())
-sb.add_request_handler(FoodInfoIntentHandler())
+sb.add_request_handler(GrabObjectIntentHandler())
+sb.add_request_handler(PutObjectIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(FallbackIntentHandler())
